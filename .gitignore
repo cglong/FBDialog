@@ -1,0 +1,6 @@
+*~
+*.DS_Store
+/samples/Connect/Connect.xcodeproj/
+/samples/Connect/build/
+/src/FBConnect.xcodeproj/
+/src/build/
