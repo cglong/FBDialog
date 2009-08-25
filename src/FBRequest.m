@@ -83,6 +83,10 @@ static const NSTimeInterval kTimeoutInterval = 180.0;
 }
 
 - (NSString*)urlForMethod:(NSString*)method {
+  if ([method isEqualToString:@"facebook.video.upload"]) {
+    return @"http://api-video.facebook.com/restserver.php";
+  }
+  
   return _session.apiURL; 
 }
 
