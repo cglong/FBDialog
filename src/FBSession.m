@@ -244,6 +244,16 @@ static FBSession* sharedSession = nil;
   return NO;
 }
 
+- (void)cancelLogin {
+  if (![self isConnected]) {
+    for (id<FBSessionDelegate> delegate in _delegates) {
+      if ([delegate respondsToSelector:@selector(sessionDidNotLogin:)]) {
+        [delegate sessionDidNotLogin:self];
+      }
+    }
+  }
+}
+
 - (void)logout {
   if (_sessionKey) {
     for (id<FBSessionDelegate> delegate in _delegates) {

@@ -89,6 +89,10 @@ static NSString* kGetSessionProxy = nil; // @"<YOUR SESSION CALLBACK)>";
   [[FBRequest requestWithDelegate:self] call:@"facebook.fql.query" params:params];
 }
 
+- (void)sessionDidNotLogin:(FBSession*)session {
+  _label.text = @"Canceled login";
+}
+
 - (void)sessionDidLogout:(FBSession*)session {
   _label.text = @"Disconnected";
   _permissionButton.hidden = YES;

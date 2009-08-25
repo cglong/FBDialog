@@ -81,6 +81,10 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
   [_webView stringByEvaluatingJavaScriptFromString:@"email.blur();"];
 
   [_getSessionRequest cancel];
+  
+  if (![_session isConnected]) {
+    [_session cancelLogin];
+  }
 }
 
 - (void)dialogDidSucceed:(NSURL*)url {
