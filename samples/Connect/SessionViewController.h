@@ -23,6 +23,8 @@
   IBOutlet UILabel* _label;
   IBOutlet UIButton* _permissionButton;
   IBOutlet UIButton* _feedButton;
+  IBOutlet UIButton* _statusButton;
+  IBOutlet UIButton* _photoButton;
   IBOutlet FBLoginButton* _loginButton;
   FBSession* _session;
 }
@@ -31,5 +33,7 @@
 
 - (void)askPermission:(id)target;
 - (void)publishFeed:(id)target;
+- (void)setStatus:(id)target;
+- (void)uploadPhoto:(id)target;
 
 @end

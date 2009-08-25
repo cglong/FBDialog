@@ -76,8 +76,11 @@ static NSString* kGetSessionProxy = nil; // @"<YOUR SESSION CALLBACK)>";
 // FBSessionDelegate
 
 - (void)session:(FBSession*)session didLogin:(FBUID)uid {
+  _label.text = @"";
   _permissionButton.hidden = NO;
-  _feedButton.hidden = NO;
+  _feedButton.hidden       = NO;
+  _statusButton.hidden     = NO;
+  _photoButton.hidden      = NO;
 
   NSString* fql = [NSString stringWithFormat:
     @"select uid,name from user where uid == %lld", session.uid];
@@ -87,19 +90,34 @@ static NSString* kGetSessionProxy = nil; // @"<YOUR SESSION CALLBACK)>";
 }
 
 - (void)sessionDidLogout:(FBSession*)session {
-  _label.text = @"";
+  _label.text = @"Disconnected";
   _permissionButton.hidden = YES;
-  _feedButton.hidden = YES;
+  _feedButton.hidden       = YES;
+  _statusButton.hidden     = YES;
+  _photoButton.hidden      = YES;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // FBRequestDelegate
 
 - (void)request:(FBRequest*)request didLoad:(id)result {
-  NSArray* users = result;
-  NSDictionary* user = [users objectAtIndex:0];
-  NSString* name = [user objectForKey:@"name"];
-  _label.text = [NSString stringWithFormat:@"Logged in as %@", name];
+  if ([request.method isEqualToString:@"facebook.fql.query"]) {
+    NSArray* users = result;
+    NSDictionary* user = [users objectAtIndex:0];
+    NSString* name = [user objectForKey:@"name"];
+    _label.text = [NSString stringWithFormat:@"Logged in as %@", name];
+  } else if ([request.method isEqualToString:@"facebook.users.setStatus"]) {
+    NSString* success = result;
+    if ([success isEqualToString:@"1"]) {
+      _label.text = [NSString stringWithFormat:@"Status successfully set"]; 
+    } else {
+      _label.text = [NSString stringWithFormat:@"Problem setting status"]; 
+    }
+  } else if ([request.method isEqualToString:@"facebook.photos.upload"]) {
+    NSDictionary* photoInfo = result;
+    NSString* pid = [photoInfo objectForKey:@"pid"];
+    _label.text = [NSString stringWithFormat:@"Uploaded with pid %@", pid];
+  }
 }
 
 - (void)request:(FBRequest*)request didFailWithError:(NSError*)error {
@@ -122,6 +140,25 @@ static NSString* kGetSessionProxy = nil; // @"<YOUR SESSION CALLBACK)>";
   dialog.templateBundleId = 9999999;
   dialog.templateData = @"{\"key1\": \"value1\"}";
   [dialog show];
+}
+
+- (void)setStatus:(id)target {
+  NSString *statusString = @"Testing iPhone Connect SDK";
+	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
+                          statusString, @"status",
+                          @"true", @"status_includes_verb",
+                          nil];
+	[[FBRequest requestWithDelegate:self] call:@"facebook.users.setStatus" params:params];
+}
+
+- (void)uploadPhoto:(id)target {
+  id path = @"http://merrimusings.mu.nu/archives/images/groundhog2.jpg";
+  NSURL *url = [NSURL URLWithString:path];
+  NSData *data = [NSData dataWithContentsOfURL:url];
+  UIImage *img = [[UIImage alloc] initWithData:data];
+  
+	NSDictionary *params = nil;
+  [[FBRequest requestWithDelegate:self] call:@"facebook.photos.upload" params:params dataParam:(NSData*)img];
 }
 
 @end
