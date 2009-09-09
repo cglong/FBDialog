@@ -16,7 +16,7 @@
 
 #import "FBConnect/FBConnectGlobal.h"
 
-const NSString* kFB_SDK_VersionNumber = @"iphone/1.0.4";
+const NSString* kFB_SDK_VersionNumber = @"iphone/1.0.5";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private

@@ -27,8 +27,6 @@ static NSString* kLoginURL = @"http://www.facebook.com/login.php";
 
 @implementation FBLoginDialog
 
-@synthesize session = _session;
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
 

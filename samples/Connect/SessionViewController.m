@@ -156,12 +156,12 @@ static NSString* kGetSessionProxy = nil; // @"<YOUR SESSION CALLBACK)>";
 }
 
 - (void)uploadPhoto:(id)target {
-  id path = @"http://merrimusings.mu.nu/archives/images/groundhog2.jpg";
-  NSURL *url = [NSURL URLWithString:path];
-  NSData *data = [NSData dataWithContentsOfURL:url];
-  UIImage *img = [[UIImage alloc] initWithData:data];
+  NSString *path = @"http://www.facebook.com/images/devsite/iphone_connect_btn.jpg";
+  NSURL    *url  = [NSURL URLWithString:path];
+  NSData   *data = [NSData dataWithContentsOfURL:url];
+  UIImage  *img  = [[UIImage alloc] initWithData:data];
   
-	NSDictionary *params = nil;
+  NSDictionary *params = nil;
   [[FBRequest requestWithDelegate:self] call:@"facebook.photos.upload" params:params dataParam:(NSData*)img];
 }
 
