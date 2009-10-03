@@ -139,19 +139,32 @@ static NSString* kGetSessionProxy = nil; // @"<YOUR SESSION CALLBACK)>";
 }
 
 - (void)publishFeed:(id)target {
-  FBFeedDialog* dialog = [[[FBFeedDialog alloc] init] autorelease];
-  dialog.delegate = self;
-  dialog.templateBundleId = 9999999;
-  dialog.templateData = @"{\"key1\": \"value1\"}";
-  [dialog show];
+	// Leaving the code for FBFeedDialog here as an example, but we encourage
+	// everyone to use FBStreamDialog moving forward.
+	/*
+	FBFeedDialog* dialog = [[[FBFeedDialog alloc] init] autorelease];
+	dialog.delegate = self;
+	dialog.templateBundleId = 124879669193;
+	dialog.templateData = @"{\"images\":[{\"src\":\"http://img40.yfrog.com/img40/5914/iphoneconnectbtn.jpg\",\"href\":\"http://developers.facebook.com/connect.php?tab=iphone\"}]}";
+	dialog.userMessagePrompt = @"Example prompt";
+	[dialog show];
+    */
+	 
+	FBStreamDialog* dialog = [[[FBStreamDialog alloc] init] autorelease];
+	dialog.delegate = self;
+	dialog.userMessagePrompt = @"Example prompt";
+	dialog.attachment = @"{\"name\":\"Facebook Connect for iPhone\",\"href\":\"http://developers.facebook.com/connect.php?tab=iphone\",\"caption\":\"Caption\",\"description\":\"Description\",\"media\":[{\"type\":\"image\",\"src\":\"http://img40.yfrog.com/img40/5914/iphoneconnectbtn.jpg\",\"href\":\"http://developers.facebook.com/connect.php?tab=iphone/\"}],\"properties\":{\"another link\":{\"text\":\"Facebook home page\",\"href\":\"http://www.facebook.com\"}}}";
+	// replace this with a friend's UID
+	// dialog.targetId = @"999999";
+	[dialog show];
 }
 
 - (void)setStatus:(id)target {
   NSString *statusString = @"Testing iPhone Connect SDK";
 	NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:
-                          statusString, @"status",
-                          @"true", @"status_includes_verb",
-                          nil];
+							statusString, @"status",
+							@"true", @"status_includes_verb",
+							nil];
 	[[FBRequest requestWithDelegate:self] call:@"facebook.users.setStatus" params:params];
 }
 

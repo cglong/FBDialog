@@ -26,8 +26,10 @@ static NSString* kFeedURL = @"http://www.facebook.com/connect/prompt_feed.php";
 
 @implementation FBFeedDialog
 
-@synthesize templateBundleId = _templateBundleId, templateData = _templateData,
-  bodyGeneral = _bodyGeneral;
+@synthesize templateBundleId  = _templateBundleId,
+            templateData      = _templateData,
+            bodyGeneral       = _bodyGeneral,
+            userMessagePrompt = _userMessagePrompt;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
@@ -75,9 +77,15 @@ static NSString* kFeedURL = @"http://www.facebook.com/connect/prompt_feed.php";
 
   NSString* feedInfo = [self generateFeedInfo];
   NSDictionary* postParams = [NSDictionary dictionaryWithObjectsAndKeys:
-    _session.apiKey, @"api_key", _session.sessionKey, @"session_key",
-    @"1", @"preview", @"fbconnect:success", @"callback", @"fbconnect:cancel", @"cancel", 
-    feedInfo, @"feed_info", @"self_feed", @"feed_target_type", nil];
+							  _session.apiKey,      @"api_key",
+							  _session.sessionKey,  @"session_key",
+							  @"1",                 @"preview",
+							  @"fbconnect:success", @"callback",
+							  @"fbconnect:cancel",  @"cancel", 
+							  feedInfo,             @"feed_info",
+							  @"self_feed",         @"feed_target_type",
+							  _userMessagePrompt,   @"user_message_prompt",
+							  nil];
 
   [self loadURL:kFeedURL method:@"POST" get:getParams post:postParams];
 }
