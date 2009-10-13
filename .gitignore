@@ -1,6 +1,8 @@
 *~
 *.DS_Store
-/samples/Connect/Connect.xcodeproj/
+/samples/Connect/Connect.xcodeproj/*.mode1v3
+/samples/Connect/Connect.xcodeproj/*.pbxuser
 /samples/Connect/build/
-/src/FBConnect.xcodeproj/
+/src/FBConnect.xcodeproj/*.mode1v3
+/src/FBConnect.xcodeproj/*.pbxuser
 /src/build/
