@@ -12,15 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Modified by Christopher Long
 */
 
 #import "FBConnect/FBDialog.h"
-#import "FBConnect/FBSession.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // global
 
-static NSString* kDefaultTitle = @"Connect to Facebook";
 static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
 static CGFloat kFacebookBlue[4] = {0.42578125, 0.515625, 0.703125, 1.0};
@@ -39,7 +39,7 @@ static CGFloat kBorderWidth = 10;
 
 @implementation FBDialog
 
-@synthesize session = _session, delegate = _delegate;
+@synthesize delegate = _delegate;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private
@@ -173,17 +173,6 @@ static CGFloat kBorderWidth = 10;
   }
 }
 
-- (void)updateWebOrientation {
-  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-  if (UIInterfaceOrientationIsLandscape(orientation)) {
-    [_webView stringByEvaluatingJavaScriptFromString:
-      @"document.body.setAttribute('orientation', 90);"];
-  } else {
-    [_webView stringByEvaluatingJavaScriptFromString:
-      @"document.body.removeAttribute('orientation');"];
-  }
-}
-
 - (void)bounce1AnimationStopped {
   [UIView beginAnimations:nil context:nil];
   [UIView setAnimationDuration:kTransitionDuration/2];
@@ -198,24 +187,6 @@ static CGFloat kBorderWidth = 10;
   [UIView setAnimationDuration:kTransitionDuration/2];
   self.transform = [self transformForOrientation];
   [UIView commitAnimations];
-}
-
-- (NSURL*)generateURL:(NSString*)baseURL params:(NSDictionary*)params {
-  if (params) {
-    NSMutableArray* pairs = [NSMutableArray array];
-    for (NSString* key in params.keyEnumerator) {
-      NSString* value = [params objectForKey:key];
-      NSString* val = [value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-      NSString* pair = [NSString stringWithFormat:@"%@=%@", key, val];
-      [pairs addObject:pair];
-    }
-      
-    NSString* query = [pairs componentsJoinedByString:@"&"];
-    NSString* url = [NSString stringWithFormat:@"%@?%@", baseURL, query];
-    return [NSURL URLWithString:url];
-  } else {
-    return [NSURL URLWithString:baseURL];
-  }
 }
 
 - (NSMutableData*)generatePostBody:(NSDictionary*)params {
@@ -381,50 +352,6 @@ static CGFloat kBorderWidth = 10;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// UIWebViewDelegate
-
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request
-    navigationType:(UIWebViewNavigationType)navigationType {
-  NSURL* url = request.URL;
-  if ([url.scheme isEqualToString:@"fbconnect"]) {
-    if ([url.resourceSpecifier isEqualToString:@"cancel"]) {
-      [self dismissWithSuccess:NO animated:YES];
-    } else {
-      [self dialogDidSucceed:url];
-    }
-    return NO;
-  } else if ([_loadingURL isEqual:url]) {
-    return YES;
-  } else if (navigationType == UIWebViewNavigationTypeLinkClicked) {
-    if ([_delegate respondsToSelector:@selector(dialog:shouldOpenURLInExternalBrowser:)]) {
-      if (![_delegate dialog:self shouldOpenURLInExternalBrowser:url]) {
-        return NO;
-      }
-    }
-    
-    [[UIApplication sharedApplication] openURL:request.URL];
-    return NO;
-  } else {
-    return YES;
-  }
-}
-
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-  [_spinner stopAnimating];
-  _spinner.hidden = YES;
-  
-  self.title = [_webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-  [self updateWebOrientation];
-}
-
-- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
-  // 102 == WebKitErrorFrameLoadInterruptedByPolicyChange
-  if (!([error.domain isEqualToString:@"WebKitErrorDomain"] && error.code == 102)) {
-    [self dismissWithError:error animated:YES];
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 // UIDeviceOrientationDidChangeNotification
 
 - (void)deviceOrientationDidChange:(void*)object {
@@ -556,41 +483,6 @@ static CGFloat kBorderWidth = 10;
 
 - (void)load {
   // Intended for subclasses to override
-}
-
-- (void)loadURL:(NSString*)url method:(NSString*)method get:(NSDictionary*)getParams
-        post:(NSDictionary*)postParams {
-  // This "test cookie" is required by login.php, or it complains that you need to enable JavaScript
-  NSHTTPCookieStorage* cookies = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-  NSHTTPCookie* testCookie = [NSHTTPCookie cookieWithProperties:
-    [NSDictionary dictionaryWithObjectsAndKeys:
-      @"1", NSHTTPCookieValue,
-      @"test_cookie", NSHTTPCookieName,
-      @".facebook.com", NSHTTPCookieDomain,
-      @"/", NSHTTPCookiePath,
-      nil]];
-  [cookies setCookie:testCookie];
-
-  [_loadingURL release];
-  _loadingURL = [[self generateURL:url params:getParams] retain];
-  NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:_loadingURL];
-  
-  if (method) {
-    [request setHTTPMethod:method];
-
-    if ([[method uppercaseString] isEqualToString:@"POST"]) {
-      NSString* contentType = [NSString
-        stringWithFormat:@"multipart/form-data; boundary=%@", kStringBoundary];
-      [request setValue:contentType forHTTPHeaderField:@"Content-Type"];
-
-      NSData* body = [self generatePostBody:postParams];
-      if (body) {
-        [request setHTTPBody:body];
-      }
-    }
-  }
-
-  [_webView loadRequest:request];
 }
 
 - (void)dialogWillAppear {

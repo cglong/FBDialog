@@ -12,16 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Modified by Christopher Long
 */
 
 #import "FBConnect/FBConnectGlobal.h"
 
 @protocol FBDialogDelegate;
-@class FBSession;
 
-@interface FBDialog : UIView <UIWebViewDelegate> {
+@interface FBDialog : UIView {
   id<FBDialogDelegate> _delegate;
-  FBSession* _session;
   NSURL* _loadingURL;
   UIWebView* _webView;
   UIActivityIndicatorView* _spinner;
@@ -36,11 +36,6 @@
  * The delegate.
  */
 @property(nonatomic,assign) id<FBDialogDelegate> delegate;
-
-/**
- * The session for which the login is taking place.
- */
-@property(nonatomic,assign) FBSession* session;
 
 /**
  * The title that is shown in the header atop the view;
@@ -65,12 +60,6 @@
  * Do not ever call this directly.  It is intended to be overriden by subclasses.
  */
 - (void)load;
-
-/**
- * Displays a URL in the dialog.
- */
-- (void)loadURL:(NSString*)url method:(NSString*)method get:(NSDictionary*)getParams
-        post:(NSDictionary*)postParams;
 
 /**
  * Hides the view and notifies delegates of success or cancellation.
@@ -121,17 +110,5 @@
  * Called when dialog failed to load due to an error.
  */
 - (void)dialog:(FBDialog*)dialog didFailWithError:(NSError*)error;
-
-/**
- * Asks if a link touched by a user should be opened in an external browser.
- *
- * If a user touches a link, the default behavior is to open the link in the Safari browser, 
- * which will cause your app to quit.  You may want to prevent this from happening, open the link
- * in your own internal browser, or perhaps warn the user that they are about to leave your app.
- * If so, implement this method on your delegate and return NO.  If you warn the user, you
- * should hold onto the URL and once you have received their acknowledgement open the URL yourself
- * using [[UIApplication sharedApplication] openURL:].
- */
-- (BOOL)dialog:(FBDialog*)dialog shouldOpenURLInExternalBrowser:(NSURL*)url;
 
 @end
