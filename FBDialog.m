@@ -237,9 +237,6 @@ static CGFloat kBorderWidth = 10;
 
 - (void)dismiss:(BOOL)animated {
   [self dialogWillDisappear];
-
-  [_loadingURL release];
-  _loadingURL = nil;
   
   if (animated) {
     [UIView beginAnimations:nil context:nil];
@@ -261,14 +258,13 @@ static CGFloat kBorderWidth = 10;
 // NSObject
 
 - (id)init {
-  return [self initWithSession:[FBSession session]];
+  return [super init];
 }
 
-- (id)initWithSession:(FBSession*)session {
+- (id)initWithView:(UIView*)view {
   if (self = [super initWithFrame:CGRectZero]) {
     _delegate = nil;
-    _session = [session retain];
-    _loadingURL = nil;
+    _view = [view retain];
     _orientation = UIDeviceOrientationUnknown;
     _showingKeyboard = NO;
     
@@ -277,11 +273,7 @@ static CGFloat kBorderWidth = 10;
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.contentMode = UIViewContentModeRedraw;
     
-    UIImage* iconImage = [UIImage imageNamed:@"FBConnect.bundle/images/fbicon.png"];
-    UIImage* closeImage = [UIImage imageNamed:@"FBConnect.bundle/images/close.png"];
-    
-    _iconView = [[UIImageView alloc] initWithImage:iconImage];
-    [self addSubview:_iconView];
+    UIImage* closeImage = [UIImage imageNamed:@"close.png"];
     
     UIColor* color = [UIColor colorWithRed:167.0/255 green:184.0/255 blue:216.0/255 alpha:1];
     _closeButton = [[UIButton buttonWithType:UIButtonTypeCustom] retain];
@@ -297,7 +289,6 @@ static CGFloat kBorderWidth = 10;
     [self addSubview:_closeButton];
     
     _titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    _titleLabel.text = kDefaultTitle;
     _titleLabel.backgroundColor = [UIColor clearColor];
     _titleLabel.textColor = [UIColor whiteColor];
     _titleLabel.font = [UIFont boldSystemFontOfSize:14];
@@ -305,10 +296,10 @@ static CGFloat kBorderWidth = 10;
       | UIViewAutoresizingFlexibleBottomMargin;
     [self addSubview:_titleLabel];
         
-    _webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-    _webView.delegate = self;
-    _webView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    [self addSubview:_webView];
+    _view.frame = CGRectZero;
+    _view.delegate = self;
+    _view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self addSubview:_view];
 
     _spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:
       UIActivityIndicatorViewStyleWhiteLarge];
@@ -321,14 +312,11 @@ static CGFloat kBorderWidth = 10;
 }
 
 - (void)dealloc {
-  _webView.delegate = nil;
-  [_webView release];
+  [_view release];
   [_spinner release];
   [_titleLabel release];
   [_iconView release];
   [_closeButton release];
-  [_loadingURL release];
-  [_session release];
   [super dealloc];
 }
 
@@ -345,10 +333,10 @@ static CGFloat kBorderWidth = 10;
   [self drawRect:headerRect fill:kFacebookBlue radius:0];
   [self strokeLines:headerRect stroke:kBorderBlue];
 
-  CGRect webRect = CGRectMake(
+  CGRect viewRect = CGRectMake(
     ceil(rect.origin.x + kBorderWidth), headerRect.origin.y + headerRect.size.height,
-    rect.size.width - kBorderWidth*2, _webView.frame.size.height+1);
-  [self strokeLines:webRect stroke:kBorderBlack];
+    rect.size.width - kBorderWidth*2, _view.frame.size.height+1);
+  [self strokeLines:viewRect stroke:kBorderBlack];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -373,7 +361,7 @@ static CGFloat kBorderWidth = 10;
 - (void)keyboardWillShow:(NSNotification*)notification {
   UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
   if (UIInterfaceOrientationIsLandscape(orientation)) {
-    _webView.frame = CGRectInset(_webView.frame,
+    _view.frame = CGRectInset(_view.frame,
       -(kPadding + kBorderWidth),
       -(kPadding + kBorderWidth) - _titleLabel.frame.size.height);
   }
@@ -384,7 +372,7 @@ static CGFloat kBorderWidth = 10;
 - (void)keyboardWillHide:(NSNotification*)notification {
   UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
   if (UIInterfaceOrientationIsLandscape(orientation)) {
-    _webView.frame = CGRectInset(_webView.frame,
+    _view.frame = CGRectInset(_view.frame,
       kPadding + kBorderWidth,
       kPadding + kBorderWidth + _titleLabel.frame.size.height);
   }
@@ -430,7 +418,7 @@ static CGFloat kBorderWidth = 10;
     _titleLabel.frame.size.height,
     _titleLabel.frame.size.height);
   
-  _webView.frame = CGRectMake(
+  _view.frame = CGRectMake(
     kBorderWidth+1,
     kBorderWidth + _titleLabel.frame.size.height,
     innerWidth,
@@ -438,7 +426,7 @@ static CGFloat kBorderWidth = 10;
 
   [_spinner sizeToFit];
   [_spinner startAnimating];
-  _spinner.center = _webView.center;
+  _spinner.center = _view.center;
 
   UIWindow* window = [UIApplication sharedApplication].keyWindow;
   if (!window) {

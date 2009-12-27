@@ -23,7 +23,7 @@
 @interface FBDialog : UIView {
   id<FBDialogDelegate> _delegate;
   NSURL* _loadingURL;
-  UIWebView* _webView;
+  UIView* _view;
   UIActivityIndicatorView* _spinner;
   UIImageView* _iconView;
   UILabel* _titleLabel;
@@ -45,7 +45,7 @@
 /**
  * Creates the view but does not display it.
  */
-- (id)initWithSession:(FBSession*)session;
+- (id)initWithView:(UIView*)view;
 
 /**
  * Displays the view with an animation.
