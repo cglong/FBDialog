@@ -16,7 +16,7 @@
  * Modified by Christopher Long
 */
 
-#import "FBConnect/FBDialog.h"
+#import "FBDialog.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // global
@@ -282,7 +282,11 @@ static CGFloat kBorderWidth = 10;
     [_closeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
     [_closeButton addTarget:self action:@selector(cancel)
       forControlEvents:UIControlEventTouchUpInside];
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 30000
+    _closeButton.titleLabel.font = [UIFont boldSystemFontOfSize:12];
+#else
     _closeButton.font = [UIFont boldSystemFontOfSize:12];
+#endif
     _closeButton.showsTouchWhenHighlighted = YES;
     _closeButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin
       | UIViewAutoresizingFlexibleBottomMargin;
@@ -297,23 +301,14 @@ static CGFloat kBorderWidth = 10;
     [self addSubview:_titleLabel];
         
     _view.frame = CGRectZero;
-    _view.delegate = self;
     _view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self addSubview:_view];
-
-    _spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:
-      UIActivityIndicatorViewStyleWhiteLarge];
-    _spinner.autoresizingMask =
-      UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin
-      | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-    [self addSubview:_spinner];
   }
   return self;
 }
 
 - (void)dealloc {
   [_view release];
-  [_spinner release];
   [_titleLabel release];
   [_iconView release];
   [_closeButton release];
@@ -345,7 +340,6 @@ static CGFloat kBorderWidth = 10;
 - (void)deviceOrientationDidChange:(void*)object {
   UIDeviceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
   if (!_showingKeyboard && [self shouldRotateToOrientation:orientation]) {
-    [self updateWebOrientation];
 
     CGFloat duration = [UIApplication sharedApplication].statusBarOrientationAnimationDuration;
     [UIView beginAnimations:nil context:nil];
@@ -423,10 +417,6 @@ static CGFloat kBorderWidth = 10;
     kBorderWidth + _titleLabel.frame.size.height,
     innerWidth,
     self.frame.size.height - (_titleLabel.frame.size.height + 1 + kBorderWidth*2));
-
-  [_spinner sizeToFit];
-  [_spinner startAnimating];
-  _spinner.center = _view.center;
 
   UIWindow* window = [UIApplication sharedApplication].keyWindow;
   if (!window) {

@@ -16,15 +16,13 @@
  * Modified by Christopher Long
 */
 
-#import "FBConnect/FBConnectGlobal.h"
+#import <UIKit/UIKit.h>
 
 @protocol FBDialogDelegate;
 
 @interface FBDialog : UIView {
   id<FBDialogDelegate> _delegate;
-  NSURL* _loadingURL;
   UIView* _view;
-  UIActivityIndicatorView* _spinner;
   UIImageView* _iconView;
   UILabel* _titleLabel;
   UIButton* _closeButton;
