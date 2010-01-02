@@ -258,13 +258,14 @@ static CGFloat kBorderWidth = 10;
 // NSObject
 
 - (id)init {
-  return [super init];
+  return [self initWithView:nil];
 }
 
 - (id)initWithView:(UIView*)view {
   if (self = [super initWithFrame:CGRectZero]) {
     _delegate = nil;
-    _view = [view retain];
+    if (view)
+      _view = [view retain];
     _orientation = UIDeviceOrientationUnknown;
     _showingKeyboard = NO;
     
